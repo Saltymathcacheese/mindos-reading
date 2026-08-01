@@ -1,0 +1,36 @@
+# Auto-detect text files, normalize line endings
+* text=auto
+
+# Python
+*.py text eol=lf
+*.pyi text eol=lf
+
+# Markdown
+*.md text eol=lf
+
+# YAML / JSON / TOML
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+
+# Shell
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Config / env examples
+.env.example text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+config.yaml.example text eol=lf
+requirements.txt text eol=lf
+
+# Binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.gz binary
+*.zip binary
+*.exe binary
