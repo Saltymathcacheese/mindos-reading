@@ -1,0 +1,46 @@
+# MindOS Evaluation Cases
+
+## regression_cases.yaml
+
+Purpose: define golden input/output pairs that the system must handle correctly.
+Used for regression testing when the pipeline or references change.
+
+Format:
+```yaml
+cases:
+  - id: "reading_growth_001"
+    description: "Normal reading growth — should not trigger diagnostic language"
+    input:
+      reading_time_change: "+30%"
+      top_categories: ["心理学", "医学"]
+      diary_mood: "curious"
+    expected:
+      allowed_phrases: ["可能", "初步信号", "观察到"]
+      forbidden_phrases: ["逃避", "心理问题", "你是", "你有"]
+      min_confidence: "L0"
+      max_confidence: "L2"
+
+  - id: "reading_drop_002"
+    description: "Reading time dropped 60% — should not conclude 'depression' or 'burnout'"
+    input:
+      reading_time_change: "-60%"
+      read_days: 3
+      diary_count: 0
+    expected:
+      allowed_phrases: ["下降", "减少", "可能因为"]
+      forbidden_phrases: ["抑郁", "倦怠", "失去兴趣", "逃避现实"]
+
+  - id: "scholar_lens_003"
+    description: "Psychology reading → should connect to clinical reasoning, not diagnose"
+    input:
+      top_books: [{"title": "思考，快与慢", "category": "心理-认知与行为"}]
+      scholar_field: "口腔医学"
+    expected:
+      allowed_phrases: ["临床决策思维", "诊断推理", "判断模型"]
+      forbidden_phrases: ["心理疾病", "焦虑症", "抑郁症"]
+```
+
+## golden_cases/
+
+Real user scenarios that have been validated by the user as correct interpretations.
+Each case is a JSON file with `{input, expected_output}`.

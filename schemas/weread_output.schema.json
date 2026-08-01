@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MindOS WeRead Pipeline Output",
+  "description": "Output schema for scripts/weread_fetch.py. Validates the data contract between WeRead API and MindOS analysis layer.",
+  "type": "object",
+  "required": ["stats", "books_top10", "highlights_top3"],
+  "properties": {
+    "stats": {
+      "type": "object",
+      "required": ["reading_time", "read_days"],
+      "properties": {
+        "reading_time": {
+          "type": "object",
+          "properties": {
+            "hours": {"type": "integer"},
+            "minutes": {"type": "integer"},
+            "total_seconds": {"type": "integer"}
+          }
+        },
+        "read_days": {"type": "integer"},
+        "day_average_seconds": {"type": "integer"},
+        "compare": {"type": "number"},
+        "prefer_categories": {"type": "array"},
+        "read_longest": {"type": "array"},
+        "read_stat": {"type": "array"}
+      }
+    },
+    "prev_stats": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/properties/stats"}
+      ]
+    },
+    "books_top10": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["book_id", "title", "total_notes"],
+        "properties": {
+          "book_id": {"type": "string"},
+          "title": {"type": "string"},
+          "author": {"type": "string"},
+          "categories": {"type": "array", "items": {"type": "string"}},
+          "total_notes": {"type": "integer"},
+          "review_count": {"type": "integer"},
+          "note_count": {"type": "integer"},
+          "bookmark_count": {"type": "integer"},
+          "marked_status": {"type": "integer"},
+          "reading_progress": {"type": "integer"}
+        }
+      }
+    },
+    "books_total": {"type": "integer"},
+    "total_notes_all_books": {"type": "integer"},
+    "shelf": {
+      "type": "object",
+      "properties": {
+        "total_items": {"type": "integer"},
+        "ebook_count": {"type": "integer"},
+        "album_count": {"type": "integer"},
+        "has_articles": {"type": "boolean"},
+        "archives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "book_count": {"type": "integer"}
+            }
+          }
+        }
+      }
+    },
+    "highlights_top3": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["book", "highlights"],
+        "properties": {
+          "book": {"type": "string"},
+          "highlights": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {"type": "string"},
+                "chapter_uid": {"type": ["integer", "null"]}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

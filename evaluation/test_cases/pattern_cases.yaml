@@ -1,0 +1,54 @@
+# pattern_cases.yaml — Test cases for pattern creation rules
+# MindOS should NOT create patterns from single events or temporary states.
+
+cases:
+  - id: pattern_001
+    description: "Single reading event — should NOT create pattern"
+    input:
+      event_count: 1
+      event_type: "reading_psychology"
+    expected:
+      should_create_pattern: false
+      max_action: "note observation only"
+
+  - id: pattern_002
+    description: "Three events over 30 days — should create monitoring pattern"
+    input:
+      event_count: 3
+      period_days: 30
+      event_type: "reading_psychology"
+      cross_source: true
+    expected:
+      should_create_pattern: true
+      max_status: "monitoring"
+      max_confidence: "L1"
+
+  - id: pattern_003
+    description: "User confirmed pattern — should upgrade to confirmed"
+    input:
+      pattern_status: "monitoring"
+      user_feedback: "confirmed"
+    expected:
+      should_upgrade: true
+      new_status: "confirmed"
+      confidence_increase: true
+
+  - id: pattern_004
+    description: "No new evidence for 90 days — should decay"
+    input:
+      pattern_status: "confirmed"
+      confidence: 0.70
+      days_without_evidence: 90
+      half_life: 90
+    expected:
+      effective_confidence: 0.35
+      should_be_dormant: true
+
+  - id: pattern_005
+    description: "User dismissed — should archive"
+    input:
+      pattern_status: "monitoring"
+      user_feedback: "dismissed"
+    expected:
+      should_dismiss: true
+      should_not_appear_in_report: true

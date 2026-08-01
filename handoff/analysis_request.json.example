@@ -1,0 +1,47 @@
+{
+  "protocol_version": "1.0",
+  "created_at": "2026-08-01T15:30:00",
+  "mode": "V0.1",
+  "task": {
+    "type": "reading_analysis",
+    "requirements": [
+      "surface_analysis",
+      "association_analysis",
+      "narrative_analysis",
+      "reflection_question"
+    ]
+  },
+  "evidence": {
+    "reading": {
+      "period": {
+        "current_month_hours": 12.5,
+        "previous_month_hours": 10.2,
+        "change_pct": 22.5,
+        "trend": "up",
+        "read_days": 15
+      },
+      "top_books": [
+        {
+          "title": "思考，快与慢",
+          "author": "丹尼尔·卡尼曼",
+          "categories": ["心理-认知与行为"],
+          "total_notes": 18,
+          "notes_breakdown": {"highlights": 12, "thoughts": 4, "bookmarks": 2}
+        }
+      ],
+      "total_books_with_notes": 41,
+      "total_notes_all_time": 1698
+    },
+    "diary": {
+      "entry_count": 5,
+      "date_range": {"from": "2026-07-28", "to": "2026-08-01"},
+      "mood_distribution": {"calm": 3, "curious": 2}
+    }
+  },
+  "constraints": {
+    "no_diagnosis": true,
+    "no_personality_label": true,
+    "pattern_creation": false,
+    "max_reflection_chars": 60
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MindOS Analysis State",
+  "description": "Minimal schema validation for analysis_state.yaml. Protects against state corruption.",
+  "type": "object",
+  "required": ["last_analysis", "metrics", "data_sufficiency"],
+  "properties": {
+    "version": {"type": "string"},
+    "last_analysis": {
+      "type": "object",
+      "required": ["date", "session_id"],
+      "properties": {
+        "date": {"type": "string"},
+        "session_id": {"type": "string"},
+        "mode": {"type": "string", "enum": ["V0.1", "V0.2", "V0.3"]}
+      }
+    },
+    "data_sufficiency": {
+      "type": "object",
+      "required": ["diary_entries_total", "patterns_confirmed"],
+      "properties": {
+        "diary_entries_total": {"type": "integer"},
+        "patterns_confirmed": {"type": "integer"},
+        "actions_attempted": {"type": "integer"}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["reading", "diary", "learning"],
+      "properties": {
+        "reading": {
+          "type": "object",
+          "properties": {
+            "total_hours_30d": {
+              "type": "object",
+              "properties": {
+                "value": {"type": "number"},
+                "trend": {"type": "string"},
+                "confidence": {"type": "number"}
+              }
+            }
+          }
+        },
+        "diary": {"type": "object"},
+        "learning": {"type": "object"}
+      }
+    },
+    "emotion_signals": {"type": "object"},
+    "active_themes": {"type": "array"},
+    "pending_hypotheses": {"type": "array"},
+    "system_self_check": {
+      "type": "object",
+      "properties": {
+        "mode": {"type": "string", "enum": ["normal", "cautious", "safe"]}
+      }
+    }
+  }
+}

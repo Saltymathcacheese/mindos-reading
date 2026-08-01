@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Environment
+.env
+config.yaml
+
+# System
+.DS_Store
+Thumbs.db
+
+# MindOS
+7-System/*.backup
+7-System/raw_we_read.json
+7-System/analysis_context.json
+7-System/memory_candidates.json
+7-System/knowledge_graph.json
+handoff/analysis_request.json
+handoff/analysis_response.json
+
+# Obsidian
+.obsidian/workspace.json
+.trash/

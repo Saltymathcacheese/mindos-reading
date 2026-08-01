@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MindOS Memory Entry",
+  "description": "A compressed long-term memory entry stored in 10-Memory/.",
+  "type": "object",
+  "required": ["id", "content", "source", "score", "status"],
+  "properties": {
+    "id": {"type": "string", "description": "Unique memory ID, e.g. mem_2026Q3_001"},
+    "content": {"type": "string", "description": "Compressed narrative (100-500 chars)"},
+    "source": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "description": "Source file references, e.g. ['6-Reviews/2026-08-01-阅读分析.md']"
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Memory Value Score: weighted by impact, repetition, future relevance"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["candidate", "active", "dormant", "archived"],
+      "description": "Lifecycle: candidate → active → dormant → archived"
+    },
+    "confidence": {"type": "string", "enum": ["L0", "L1", "L2", "L3", "L4"]},
+    "first_seen": {"type": "string", "description": "ISO date when first observed"},
+    "last_updated": {"type": "string"},
+    "user_confirmed": {"type": "boolean", "description": "Has the user validated this memory?"},
+    "tags": {"type": "array", "items": {"type": "string"}}
+  }
+}

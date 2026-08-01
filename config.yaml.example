@@ -1,0 +1,34 @@
+# MindOS Runtime Configuration
+# Copy this file to config.yaml and adjust as needed.
+
+# ── WeRead API ──
+weread:
+  # Agent gateway endpoint (do not change unless API migrates)
+  api_url: "https://i.weread.qq.com/api/agent/gateway"
+
+  # Skill version reported to server for compatibility checks
+  skill_version: "1.0.4"
+
+  # Request timeout in seconds
+  timeout: 15
+
+  # Retry policy for transient failures
+  retry:
+    max_attempts: 3
+    backoff_factor: 2         # wait = backoff_factor ^ attempt seconds
+
+# ── MindOS System ──
+system:
+  # Path to vault root (relative to this config or absolute)
+  vault_path: "."
+
+  # File encoding for all reads/writes
+  output_encoding: "utf-8"
+
+  # Auto-backup state before writes
+  backup_enabled: true
+
+# ── Logging ──
+logging:
+  # DEBUG | INFO | WARNING | ERROR
+  level: "INFO"

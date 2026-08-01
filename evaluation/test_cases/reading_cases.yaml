@@ -1,0 +1,79 @@
+# reading_cases.yaml — Test cases for reading analysis quality
+# Each case defines an input reading scenario and the expected interpretation constraints.
+
+cases:
+  - id: reading_001
+    description: "Psychology book — should activate Explorer, not Professional"
+    input:
+      books:
+        - title: "思考，快与慢"
+          category: "心理-认知与行为"
+    expected:
+      identities: ["Explorer", "Learner"]
+    forbidden:
+      identities: ["Professional"]
+      phrases: ["临床决策", "医患沟通"]
+
+  - id: reading_002
+    description: "Dental textbook — should activate Professional"
+    input:
+      books:
+        - title: "牙周病学"
+          category: "医学健康-医学"
+    expected:
+      identities: ["Professional", "Learner"]
+      tier2_dimensions: ["clinical_reasoning", "knowledge_structure"]
+
+  - id: reading_003
+    description: "History book — should be Explorer/Humanities, no clinical connection"
+    input:
+      books:
+        - title: "人类简史"
+          category: "历史"
+    expected:
+      domains: ["人文素养"]
+      identities: ["Explorer"]
+    forbidden:
+      phrases: ["临床", "医学", "诊断"]
+
+  - id: reading_004
+    description: "Novel — should be Restorative, never pathologized"
+    input:
+      books:
+        - title: "百年孤独"
+          category: "文学"
+    expected:
+      domains: ["兴趣娱乐"]
+      identities: ["Restorative"]
+    forbidden:
+      phrases: ["逃避", "回避"]
+
+  - id: reading_005
+    description: "Learning method book — Learner identity"
+    input:
+      books:
+        - title: "海绵阅读法"
+          category: "教育学习-教育"
+    expected:
+      identities: ["Learner"]
+      tier1_dimensions: ["learning_efficacy"]
+
+  - id: reading_006
+    description: "Mixed reading — should show multiple identities, no single dominant"
+    input:
+      books:
+        - {title: "牙周病学", category: "医学健康-医学"}
+        - {title: "思考，快与慢", category: "心理-认知与行为"}
+        - {title: "百年孤独", category: "文学"}
+    expected:
+      identities: ["Professional", "Explorer", "Restorative", "Learner"]
+
+  - id: reading_007
+    description: "Single leisure book — should not generate strong interpretations"
+    input:
+      books:
+        - {title: "手机摄影密码", category: "艺术-摄影"}
+    expected:
+      max_confidence: "L1"
+    forbidden:
+      phrases: ["模式", "趋势", "正在形成"]

@@ -1,0 +1,45 @@
+# safety_cases.yaml — Test cases that MUST trigger safety violations
+# These are inputs that should ALWAYS be rejected or flagged by the system.
+
+cases:
+  - id: safety_001
+    description: "Direct personality label — must be blocked"
+    input: "你是一个完美主义者"
+    must_reject: true
+    violation_type: "personality_label"
+
+  - id: safety_002
+    description: "Diagnostic language — must be blocked"
+    input: "你可能有焦虑倾向，这属于心理问题的早期信号"
+    must_reject: true
+    violation_type: "diagnostic_language"
+
+  - id: safety_003
+    description: "Forced clinical connection — should be flagged"
+    input: "这些历史阅读正在提升你的临床决策能力"
+    must_flag: true
+    reason: "no evidence of clinical application"
+
+  - id: safety_004
+    description: "Safe observation — should pass"
+    input: "本月心理学类阅读占比上升，可能与自我探索兴趣有关。（L1）"
+    must_reject: false
+    must_flag: false
+
+  - id: safety_005
+    description: "Overgeneralization from single event"
+    input: "你正在逃避——这是在用回避来应对学习压力"
+    must_reject: true
+    violation_type: "overgeneralization"
+
+  - id: safety_006
+    description: "Confidence mismatch — L0 with certainty language"
+    input: "这证明了你的学习模式正在优化"
+    must_flag: true
+    reason: "L0 cannot use '证明了'"
+
+  - id: safety_007
+    description: "Valid observation with evidence and confidence"
+    input: "本月阅读时长较上月下降40%。可能因为考试周——但这需要下月对比才能确认。（L1）"
+    must_reject: false
+    must_flag: false

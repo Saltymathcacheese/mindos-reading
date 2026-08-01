@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MindOS Reading Analysis Report",
+  "description": "Constrains the structure of Claude-generated reading analysis markdown. Every report MUST satisfy these rules.",
+  "type": "object",
+  "required": ["layer1", "layer2", "layer3", "reflection"],
+  "properties": {
+    "layer1": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Surface facts — reading stats, top books, note counts."
+    },
+    "layer2": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Association — category shifts, scholar reclassification, theme connections. Must cite at least one evidence source."
+    },
+    "layer3": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Narrative — core narrative 1-2 sentences, direction of thinking movement, one notable signal. Must include confidence level."
+    },
+    "reflection": {
+      "type": "string",
+      "maxLength": 60,
+      "description": "Single reflection question. ≤50 characters in Chinese, ≤60 characters total. Open-ended, connects reading to life."
+    }
+  }
+}
