@@ -54,12 +54,12 @@ def create_request(context_path: Path, output_path: Path) -> dict:
 def main():
     parser = argparse.ArgumentParser(description="Generate MindOS analysis request for Claude")
     parser.add_argument("vault_root", nargs="?", default=".")
-    parser.add_argument("--output", default=None, help="Output path (default: handoff/analysis_request.json)")
+    parser.add_argument("--output", default=None, help="Output path (default: handoff/incoming/analysis_request.json)")
     args = parser.parse_args()
 
     vault = Path(args.vault_root)
     context_path = vault / "7-System" / "analysis_context.json"
-    output_path = Path(args.output) if args.output else (vault / "handoff" / "analysis_request.json")
+    output_path = Path(args.output) if args.output else (vault / "handoff" / "incoming" / "analysis_request.json")
 
     try:
         request = create_request(context_path, output_path)

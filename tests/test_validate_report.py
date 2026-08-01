@@ -3,6 +3,7 @@
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "validate_report.py"
@@ -10,13 +11,18 @@ SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "validate_report.p
 
 def _run(data: dict) -> dict:
     """Run validate_report.py with given data, return parsed JSON output."""
-    tmp = Path("/tmp/mindos_test_report.json")
-    tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-    r = subprocess.run(
-        [sys.executable, str(SCRIPT), "--input", str(tmp)],
-        capture_output=True, text=True,
-    )
-    return json.loads(r.stdout)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8") as f:
+        f.write(json.dumps(data, ensure_ascii=False))
+        tmp_path = f.name
+    try:
+        r = subprocess.run(
+            [sys.executable, str(SCRIPT), "--input", tmp_path],
+            capture_output=True, text=True,
+        )
+        stdout = r.stdout.strip() or "{}"
+        return json.loads(stdout)
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
 
 
 class TestReportValidation:

@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
 """
-MindOS Runtime Controller — Unified entry point.
+MindOS Runtime Controller — Unified entry point (v3.5).
 
 Commands:
     check       Vault integrity check
     status      Runtime state (version, diary count, patterns)
     validate    Schema + business rule validation
-    analyze     Full pipeline: check → status → validate → fetch → state update
+    analyze     Full Agent Loop: data → cognition → verify → render → learn
+
+The `analyze` command now runs the complete v3.5 pipeline via analysis_runner.py.
+Phase 2 (Cognition) is a GATE — Claude must fill the response via the handoff protocol.
+Phases 3-5 auto-continue once the response is ready.
 
 Usage:
     python scripts/mindos.py check
     python scripts/mindos.py status
     python scripts/mindos.py analyze
+    python scripts/mindos.py analyze --phase data     # run only data collection
+    python scripts/mindos.py analyze --phase verify    # resume from verification
 
 Python >= 3.11
 """
@@ -87,99 +93,30 @@ class MindOSRuntime:
         """State validation: schema + business rules."""
         return self._run("validate_state.py", [str(self.root)])
 
-    def analyze(self) -> dict:
+    def analyze(self, phase: str = "full") -> dict:
         """
-        Full analysis pipeline:
-        check → status → validate → fetch → context → request → [Claude] → validate_response → evaluate → report → prompt → state_update
+        Full v3.5 Agent Loop via analysis_runner.py.
+
+        Phases:
+            full       = data → cognition → verify → render → learn
+            data       = check → status → validate → fetch → context → request
+            cognition  = check if Claude filled response (gate)
+            verify     = validate response against schema + safety rules
+            render     = report → reflection → wikilinks → graph → concepts
+            learn      = state update → memory collection → calibration
+
+        Returns pipeline result dict with status, outputs, and phase details.
         """
-        pipeline: dict[str, dict] = {}
-
-        # 1. Vault health
-        vault_result = self.check()
-        pipeline["vault"] = vault_result
-        if not vault_result.get("healthy"):
-            return {
-                "success": False,
-                "error": "Vault is not healthy — run 'mindos check' for details",
-                "pipeline": pipeline,
-            }
-
-        # 2. Runtime state
-        state = self.status()
-        pipeline["state"] = state
-
-        # 3. State validation
-        validation = self.validate()
-        pipeline["validation"] = validation
-
-        # 4. Fetch WeRead data — write to file, then read it back
-        weread_out = str(self.root / "7-System" / "raw_we_read.json")
-        self._run("weread_fetch.py", ["--output", weread_out])
-        # Read the file directly to avoid subprocess JSON parsing issues with large outputs
-        import json as _json
-        try:
-            reading = _json.loads(Path(weread_out).read_text(encoding="utf-8"))
-        except Exception:
-            reading = {"success": False, "error": "Failed to read weread output"}
-        pipeline["reading"] = reading
-
-        # 5. Build Evidence Bundle
-        context = self._run("analysis_context.py", [str(self.root)])
-        pipeline["context"] = context
-
-        # 6. Generate analysis request for Claude
-        request_result = self._run("create_request.py", [str(self.root)])
-        pipeline["request"] = request_result
-
-        # 7. Generate report scaffold (Layer 1 pre-filled, Layer 2-3 placeholder)
-        report = self._run("report_generator.py", [str(self.root)])
-        pipeline["report"] = report
-
-        # 8. Generate reflection prompt scaffold
-        prompt = self._run("reflection_generator.py", [str(self.root)])
-        pipeline["prompt"] = prompt
-
-        # 9. Obsidian sync: wikilinks + broken link check
-        sync_result = self._run("link_builder.py", [str(self.root)])
-        pipeline["link_builder"] = sync_result
-
-        graph_result = self._run("graph_builder.py", [str(self.root)])
-        pipeline["graph_builder"] = graph_result
-
-        # 11. Concept extraction
-        concept_result = self._run("concept_extractor.py", [str(self.root)])
-        pipeline["concept_extractor"] = concept_result
-
-        # 12. Update state
-        if reading.get("success") and "data" in reading:
-            data = reading["data"]
-            stats = data.get("stats", {})
-            rt = stats.get("reading_time", {})
-            total_hours = round(rt.get("total_seconds", 0) / 3600, 2)
-            books_active = len(data.get("books_top10", []))
-            notes_total = data.get("total_notes_all_books", 0)
-            diary_count = state.get("diary_count", 0)
-
-            update_result = self._run("state_update.py", [
-                str(self.root),
-                "--total-hours", str(total_hours),
-                "--books-active", str(books_active),
-                "--notes-total", str(notes_total),
-                "--diary-count", str(diary_count),
-            ])
-            pipeline["state_update"] = update_result
-
-        return {
-            "success": True,
-            "completed_at": datetime.now().isoformat(),
-            "pipeline": pipeline,
-        }
+        return self._run("analysis_runner.py", [str(self.root), "--phase", phase])
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="MindOS Runtime Controller")
+    parser = argparse.ArgumentParser(description="MindOS Runtime Controller v3.5")
     parser.add_argument("command", choices=["check", "status", "validate", "analyze"])
     parser.add_argument("--root", default=".", help="Vault root path")
+    parser.add_argument("--phase", default="full",
+                        choices=["full", "data", "cognition", "verify", "render", "learn"],
+                        help="Pipeline phase (analyze command only)")
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args()
 
@@ -195,7 +132,7 @@ def main() -> None:
         elif args.command == "validate":
             result = runtime.validate()
         else:
-            result = runtime.analyze()
+            result = runtime.analyze(phase=args.phase)
 
         print(json.dumps(result, ensure_ascii=False, indent=2))
 
