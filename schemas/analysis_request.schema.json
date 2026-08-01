@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MindOS Analysis Request",
+  "description": "Schema for handoff/incoming/analysis_request.json — Python → Claude cognitive handoff. Python writes facts only; Claude reads and applies references/ for reasoning.",
+  "type": "object",
+  "required": ["protocol_version", "type", "evidence", "constraints"],
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "enum": ["1.0", "2.0"],
+      "description": "Handoff protocol version"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["reading_analysis"],
+      "description": "Analysis type — currently only reading_analysis is supported"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when this request was generated"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["V0.1", "V0.2", "V0.3"],
+      "description": "MindOS version mode — gates which references Claude can use"
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["reading"],
+      "properties": {
+        "reading": {
+          "type": "object",
+          "properties": {
+            "available": {"type": "boolean"},
+            "period": {
+              "type": "object",
+              "properties": {
+                "current_month_hours": {"type": "number"},
+                "previous_month_hours": {"type": "number"},
+                "change_pct": {"type": ["number", "null"]},
+                "trend": {"type": "string"},
+                "read_days": {"type": "integer"}
+              }
+            },
+            "top_books": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {"type": "string"},
+                  "author": {"type": "string"},
+                  "categories": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  },
+                  "total_notes": {"type": "integer"},
+                  "notes_breakdown": {
+                    "type": "object",
+                    "properties": {
+                      "highlights": {"type": "integer"},
+                      "thoughts": {"type": "integer"},
+                      "bookmarks": {"type": "integer"}
+                    }
+                  }
+                }
+              }
+            },
+            "total_books_with_notes": {"type": "integer"},
+            "total_notes_all_time": {"type": "integer"},
+            "prefer_categories": {"type": "array"},
+            "highlights_top3": {"type": "array"}
+          }
+        },
+        "diary": {
+          "type": "object",
+          "properties": {
+            "available": {"type": "boolean"},
+            "entry_count": {"type": "integer"},
+            "date_range": {
+              "type": "object",
+              "properties": {
+                "from": {"type": "string"},
+                "to": {"type": "string"}
+              }
+            },
+            "mood_distribution": {"type": "object"}
+          }
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of reference files Claude should apply (e.g. ['analysis-pipeline.md', 'confidence-system.md'])"
+    },
+    "constraints": {
+      "type": "object",
+      "required": ["no_diagnosis", "no_personality_label", "max_reflection_chars"],
+      "properties": {
+        "no_diagnosis": {
+          "type": "boolean",
+          "description": "Must be true — Claude must not use diagnostic language"
+        },
+        "no_personality_label": {
+          "type": "boolean",
+          "description": "Must be true — Claude must not label user's personality"
+        },
+        "pattern_creation": {
+          "type": "boolean",
+          "description": "Whether pattern creation is allowed (V0.2+ only)"
+        },
+        "max_reflection_chars": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120,
+          "description": "Maximum characters for the reflection question"
+        }
+      }
+    }
+  }
+}
